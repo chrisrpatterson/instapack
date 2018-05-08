@@ -126,6 +126,8 @@ Scaffolds a new instapack project into your existing app folder where the comman
 
 - `inferno` when you want to develop a web app with [Inferno](https://infernojs.org/). (Insanely fast, React-like)
 
+- `hyperapp` when you want to develop a web app with [hyperapp](https://github.com/hyperapp/hyperapp). (1kB, with state management)
+
 - `mithril` when you want to develop a web app with [Mithril](https://mithril.js.org/) and [Tachyons](http://tachyons.io/). (hyperscript, provides routing and XHR)
 
 - `vue-mobile` when you want to develop a _[Progressive Web Application](https://developers.google.com/web/progressive-web-apps/)_ using Vue.js and [Onsen UI](https://onsen.io/vue/)! ([Cordova](https://cordova.apache.org)-compatible, [read more on FAQ ↓](#how-to-develop-a-cordova-app-using-vue-mobile-template))
@@ -166,22 +168,16 @@ Remove all files in the output folders.
 
 instapack puts configurations inside `package.json` to reduce project files clutter. For example, this is the included `package.json` with `vue` template:
 
-> `name`, `version`, `private`, and `dependencies` fields were removed for brevity.
+> `name`, `version`, `private`, `dependencies`, and `devDependencies` fields were removed for brevity.
 
 ```json
 {
   "instapack": {
     "output": "wwwroot",
-    "concat": {
-      "vendor": [
-        "es6-promise/dist/es6-promise.auto",
-        "jquery/dist/jquery.slim",
-        "popper.js",
-        "bootstrap"
-      ]
-    },
+    "concat": {},
     "alias": {
-      "vue": "vue/dist/vue.common"
+      "vue": "vue/dist/vue.esm",
+      "jquery": "jquery/dist/jquery.slim"
     }
   }
 }
@@ -247,7 +243,7 @@ so [CDN](https://en.wikipedia.org/wiki/Content_delivery_network) can be used! :t
 
     - Possible but not recommended: reference the library objects directly from the `window` (e.g. `window['$']`).
 
-**Another `concat` configuration example:** (produces `vendor.js` bundle handy for ASP.NET MVC)
+**A `concat` configuration example:** (produces `vendor.js` bundle handy for ASP.NET MVC)
 
 ```json
 {
@@ -264,9 +260,29 @@ so [CDN](https://en.wikipedia.org/wiki/Content_delivery_network) can be used! :t
 }
 ```
 
+## .env
+
+instapack version 6.4.0+ supports `.env` in the project root folder. [Environment variables declared within](https://github.com/motdotla/dotenv) will be used to define `process.env` (using `process.env` in TypeScript requires `@types/node` package installed).
+
+**For example:** `FOO=bar` will define `process.env.FOO` as `'bar'`
+
+> Due to technical reasons, `.env` file cannot be watched.
+
+### --env
+
+In addition, build flag `--env` accepts object-like notation to be passed as `process.env` variables. 
+
+  - Variables passed using the flag will be merged with variables defined in `.env`
+
+  - Variables passed using the flag takes takes priority / overrides the variables defined in `.env`
+
+**For example:** `ipack --env.FOO=bar --env.HELLO=world`
+
+> Variables coming from `process.env` are always strings.
+
 ## Babel (BETA)
 
-instapack supports `.babelrc` in the project folder. Here are some use cases where this feature can be useful:
+instapack version 6.4.0+ supports `.babelrc` in the project root folder. Here are some use cases where this feature can be useful:
 
 - You may use Babel instead of TypeScript to transpile JS to ES5: set TypeScript `target` to `esnext` then use `@babel/preset-env`
 
@@ -333,7 +349,7 @@ let settings = require('./settings.json') as ISettings;
 let template = require('./mytemplate.html') as string;
 ```
 
-> CommonJS `require` method in TypeScript is provided through `@types/requirejs` package.
+> CommonJS `require` method in TypeScript is provided through `@types/requirejs` or `@types/node` packages.
 
 > Use `as` type-hint for clarity and convenience.
 
@@ -517,3 +533,7 @@ concfg import firefly
 ```
 
 For more information, visit http://scoop.sh/ and https://github.com/lukesampson/concfg
+
+## License
+
+[MIT](https://github.com/ryanelian/instapack/blob/master/LICENSE)

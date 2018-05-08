@@ -6,6 +6,7 @@ const chalk_1 = require("chalk");
 const webpack = require("webpack");
 const TypeScript = require("typescript");
 const vue_loader_1 = require("vue-loader");
+const dotenv = require("dotenv");
 const PrettyUnits_1 = require("./PrettyUnits");
 const TypeScriptBuildWebpackPlugin_1 = require("./TypeScriptBuildWebpackPlugin");
 const Shout_1 = require("./Shout");
@@ -67,6 +68,19 @@ class TypeScriptBuildTool {
                 loader: 'babel-loader'
             }
         };
+    }
+    readEnvFile() {
+        let env = {};
+        let dotEnvPath = this.settings.dotEnv;
+        if (fse.pathExistsSync(dotEnvPath) === false) {
+            return env;
+        }
+        ;
+        let dotEnvRaw = fse.readFileSync(dotEnvPath, 'utf8');
+        let parsedEnv = dotenv.parse(dotEnvRaw);
+        Object.assign(env, parsedEnv);
+        Object.assign(env, this.flags.env);
+        return env;
     }
     get typescriptWebpackRules() {
         let options = this.tsconfigOptions;
@@ -157,6 +171,10 @@ class TypeScriptBuildTool {
             sourceMap: this.flags.sourceMap
         }));
         plugins.push(new vue_loader_1.VueLoaderPlugin());
+        let env = this.readEnvFile();
+        if (Object.keys(env).length > 0) {
+            plugins.push(new webpack.EnvironmentPlugin(env));
+        }
         return plugins;
     }
     get webpackConfiguration() {
