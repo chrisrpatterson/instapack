@@ -11,14 +11,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const child_process_1 = require("child_process");
 let activeTasks = new Set();
 function runTaskInBackground(modulePath, params) {
-    let task = child_process_1.fork(__filename, [], {
-        env: {
-            INSTAPACK_TASK: modulePath
-        }
-    });
+    let task = child_process_1.fork(__filename);
     let processId = task.pid;
     activeTasks.add(task);
-    task.send(params);
+    task.send({
+        modulePath: modulePath,
+        params: params
+    });
     return new Promise((ok, reject) => {
         task.on('error', error => {
             reject(error);
@@ -43,13 +42,14 @@ function killAllBackgroundTasks() {
     activeTasks.clear();
 }
 exports.killAllBackgroundTasks = killAllBackgroundTasks;
-process.on('message', (params) => __awaiter(this, void 0, void 0, function* () {
-    let modulePath = process.env.INSTAPACK_TASK;
-    let valid = Boolean(process.send) && Boolean(modulePath);
+process.on('message', (data) => __awaiter(this, void 0, void 0, function* () {
+    let valid = process.send && data && data.modulePath && data.params;
     if (!valid) {
         return;
     }
     try {
+        let modulePath = data.modulePath;
+        let params = data.params;
         let taskModule = require(modulePath);
         let result = yield taskModule(params);
         process.send({

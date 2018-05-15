@@ -24,15 +24,14 @@ let activeTasks: Set<ChildProcess> = new Set<ChildProcess>();
  * @param params 
  */
 export function runTaskInBackground<T>(modulePath: string, params) {
-    let task = fork(__filename, [], {
-        env: {
-            INSTAPACK_TASK: modulePath
-        }
-    });
+    let task = fork(__filename);
 
     let processId = task.pid;
     activeTasks.add(task);
-    task.send(params);
+    task.send({
+        modulePath: modulePath,
+        params: params
+    });
 
     return new Promise<T>((ok, reject) => {
         task.on('error', error => {
@@ -61,15 +60,17 @@ export function killAllBackgroundTasks() {
     activeTasks.clear();
 }
 
-process.on('message', async (params) => {
-    let modulePath: string = process.env.INSTAPACK_TASK;
-    let valid = Boolean(process.send) && Boolean(modulePath);
+process.on('message', async (data) => {
+    let valid = process.send && data && data.modulePath && data.params;
     if (!valid) {
         return;
     }
 
     // console.log(process.pid + ' ' + modulePath);
     try {
+        let modulePath: string = data.modulePath;
+        let params: any = data.params;
+
         let taskModule = require(modulePath) as TaskModuleFunction;
         let result = await taskModule(params);
         process.send({
