@@ -9,6 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const child_process_1 = require("child_process");
+const os_1 = require("os");
+let cpuCount = os_1.cpus().length;
+if (process.env.CI || process.env.TRAVIS) {
+    cpuCount = 2;
+}
 let activeTasks = new Set();
 function runTaskInBackground(modulePath, params) {
     let task = child_process_1.fork(__filename);
@@ -35,6 +40,16 @@ function runTaskInBackground(modulePath, params) {
     });
 }
 exports.runTaskInBackground = runTaskInBackground;
+function runTaskInBackgroundOnPowerfulSystem(modulePath, params) {
+    if (cpuCount > 4) {
+        return runTaskInBackground(modulePath, params);
+    }
+    else {
+        let taskModule = require(modulePath);
+        return taskModule(params);
+    }
+}
+exports.runTaskInBackgroundOnPowerfulSystem = runTaskInBackgroundOnPowerfulSystem;
 function killAllBackgroundTasks() {
     for (let task of activeTasks) {
         task.kill();

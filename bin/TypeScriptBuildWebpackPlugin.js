@@ -41,7 +41,7 @@ function minifyChunkAssets(compilation, chunks, sourceMap) {
             }
             let asset = compilation.assets[fileName];
             let input = createMinificationInput(asset, fileName, sourceMap);
-            let t1 = TaskManager_1.runTaskInBackground(jsMinifyTaskModulePath, input);
+            let t1 = TaskManager_1.runTaskInBackgroundOnPowerfulSystem(jsMinifyTaskModulePath, input);
             let t2 = t1.then(minified => {
                 let output;
                 if (sourceMap) {

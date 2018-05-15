@@ -1,4 +1,10 @@
 import { fork, ChildProcess } from 'child_process';
+import { cpus } from 'os';
+
+let cpuCount = cpus().length;
+if (process.env.CI || process.env.TRAVIS) {
+    cpuCount = 2;
+}
 
 /**
  * Contains objects returned from child process.
@@ -23,7 +29,7 @@ let activeTasks: Set<ChildProcess> = new Set<ChildProcess>();
  * @param modulePath 
  * @param params 
  */
-export function runTaskInBackground<T>(modulePath: string, params) {
+export function runTaskInBackground<T>(modulePath: string, params): Promise<T> {
     let task = fork(__filename);
 
     let processId = task.pid;
@@ -48,6 +54,21 @@ export function runTaskInBackground<T>(modulePath: string, params) {
             activeTasks.delete(task);
         });
     });
+}
+
+/**
+ * Accepts async function module path to be executed and input parameter for that function.
+ * Executes the async function in child process if the system is powerful enough (and not CI).
+ * @param modulePath 
+ * @param params 
+ */
+export function runTaskInBackgroundOnPowerfulSystem<T>(modulePath: string, params): Promise<T> {
+    if (cpuCount > 4) {
+        return runTaskInBackground<T>(modulePath, params);
+    } else {
+        let taskModule = require(modulePath) as TaskModuleFunction;
+        return taskModule(params);
+    }
 }
 
 /**

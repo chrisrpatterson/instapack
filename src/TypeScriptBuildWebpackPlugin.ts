@@ -6,8 +6,7 @@ import { MinifyOutput } from 'uglify-js';
 
 import { Shout } from './Shout';
 import { IMinifyInputs } from './IMinifyInputs';
-import { runTaskInBackground } from './TaskManager';
-// import jsMinifySync = require('./build-tasks/JsMinifyTask');
+import { runTaskInBackgroundOnPowerfulSystem } from './TaskManager';
 
 const jsMinifyTaskModulePath = require.resolve('./build-tasks/JsMinifyTask');
 
@@ -61,12 +60,10 @@ function minifyChunkAssets(compilation: webpack.compilation.Compilation, chunks:
                 continue;
             }
 
-            // Shout.timed('Minifying ' + chalk.blue(fileName) + '...');
             let asset = compilation.assets[fileName] as Source;
             let input = createMinificationInput(asset, fileName, sourceMap);
 
-            // let t1 = jsMinifySync(input);
-            let t1 = runTaskInBackground<MinifyOutput>(jsMinifyTaskModulePath, input);
+            let t1 = runTaskInBackgroundOnPowerfulSystem<MinifyOutput>(jsMinifyTaskModulePath, input);
             let t2 = t1.then(minified => {
                 let output: Source;
                 if (sourceMap) {

@@ -9,9 +9,9 @@ import { Shout } from '../Shout';
  */
 export = function jsMinifyTask(input: IMinifyInputs) {
     return new Promise<UglifyJS.MinifyOutput>((ok, reject) => {
-        let fileBytes = Buffer.byteLength(input.code, 'utf8');
-        let fileSize = '(' + prettyBytes(fileBytes) + ')';
-        Shout.timed(`Minifying ${chalk.blue(input.fileName)}... ${chalk.grey(fileSize)}`);
+        // let fileBytes = Buffer.byteLength(input.code, 'utf8');
+        // let fileSize = '(' + prettyBytes(fileBytes) + ')';
+        // Shout.timed(`Minifying ${chalk.blue(input.fileName)}... ${chalk.grey(fileSize)}`);
 
         let option: UglifyJS.MinifyOptions;
         if (input.map) {
