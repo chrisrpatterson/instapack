@@ -27,8 +27,7 @@ steps:
     versionSpec: 10.x
   displayName: 'Install Node.js'
 
-- script: | # for some reason, npm link fails when script is single-line?!
-    npm link 
+- script: npm link # for some reason, npm link fails when script is single-line?!
   displayName: 'Restore Packages'
 
 - script: |
@@ -43,7 +42,9 @@ steps:
 - script: |
     mkdir demo
     cd demo
+    echo "Demo Created"
     ipack new vue
+    echo "New vue completed"
     ipack
     ipack -dx
   displayName: 'Full-Cycle Test: vue'
