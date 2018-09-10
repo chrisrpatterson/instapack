@@ -45,6 +45,5 @@ steps:
     echo "Demo Created"
     ipack new vue
     echo "New vue completed"
-    ipack
-    ipack -dx
-  displayName: 'Full-Cycle Test: vue'
+- script: ipack
+- script: ipack -dx
